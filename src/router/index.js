@@ -26,14 +26,15 @@ const router = createRouter({
       component: () => import('../views/Citas/Index.vue'),
     },
     {
-      path: 'doctores',
+      path: '/doctores',
       name: 'doctores',
       component: () => import('../views/Doctores/Index.vue'),
     },
     {
-      path: '/edit',
-      name: 'edit',
+      path: '/doctores/edit/:id',
+      name: 'editDoctor',
       component: () => import('../views/Doctores/Edit.vue'),
+      props: true, // Esto pasa el parámetro `id` como prop al componente
     },
     {
       path: '/create',
@@ -56,21 +57,31 @@ const router = createRouter({
       component: () => import('../views/Pacientes/Index.vue'),
     },
     {
-      path: '/editPaciente',
-      name: 'editPaciente',
-      component: () => import('../views/Pacientes/Edit.vue'),
-    },
-    {
-      path: '/createPaciente',
-      name: 'createPaciente',
-      component: () => import('../views/Pacientes/Create.vue'),
-    },
-    {
       path: '/tratamientos',
       name: 'tratamientos',
       component: () => import('../views/Tratamientos/Index.vue'),
+    },
+    {
+      path: '/grafica',
+      name: 'grafica',
+      component: () => import('../views/Pacientes/Graphic.vue'),
+    },
+    {
+      path: '/reportes',
+      name: 'reportes',
+      component: () => import('../views/Historial_Tratamientos/Reports.vue'),
     }
   ],
+})
+
+router.beforeEach(async (to) => {
+  const publicPages = ['/login', '/register']
+  const authRequired = !publicPages.includes(to.path)
+  const auth = useAuthStore()
+  if (authRequired && !auth.authuser) {
+    auth.returnUrl = to.fullPath;
+    return '/login';
+  }
 })
 
 export default router

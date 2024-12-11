@@ -1,35 +1,80 @@
-@import './base.css';
+<template>
+  <div class="d-flex justify-content-center align-items-center vh-100 bg-light">
+    <div class="col-lg-4 col-md-6 col-sm-8 col-10">
+      <div class="card shadow-sm border-0 rounded">
+        <div class="card-header bg-primary text-white text-center">
+          <h4><i class="fas fa-user-circle me-2"></i>Iniciar Sesión</h4>
+        </div>
+        <div class="card-body p-4">
+          <form @submit.prevent="login">
+            <div class="mb-4">
+              <label for="email" class="form-label text-secondary">Correo Electrónico</label>
+              <div class="input-group">
+                <span class="input-group-text bg-primary text-white">
+                  <i class="fas fa-envelope"></i>
+                </span>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="email"
+                  v-model="form.email"
+                  placeholder="Ingresa tu correo"
+                  required
+                />
+              </div>
+            </div>
+            <div class="mb-4">
+              <label for="password" class="form-label text-secondary">Contraseña</label>
+              <div class="input-group">
+                <span class="input-group-text bg-primary text-white">
+                  <i class="fas fa-lock"></i>
+                </span>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="password"
+                  v-model="form.password"
+                  placeholder="Ingresa tu contraseña"
+                  required
+                />
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">
+              <i class="fas fa-sign-in-alt me-2"></i>Ingresar
+            </button>
+          </form>
+        </div>
+        <div class="card-footer bg-light text-center">
+          <small class="text-secondary">
+            ¿No tienes una cuenta? 
+            <router-link to="/register" class="text-primary">Regístrate aquí</router-link>
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+<style>
+.vh-100 {
+  min-height: 100vh;
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+.card {
+  border-radius: 0.75rem;
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
+.bg-light {
+  background-color: #f8f9fa !important;
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
 }
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #004085;
+}
+</style>

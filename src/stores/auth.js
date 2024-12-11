@@ -1,64 +1,75 @@
 import { defineStore } from 'pinia'
+import axios from 'axios'
 import { show_alerta } from '@/functions'
-import axios from 'axios';
 
 export const useAuthStore = defineStore('auth', {
-    state: () => ({
-        authuser: null,
-        authtoken: null,
-    }),
-    getters:{
-        user: (state) => state.authuser,
-        token: (state) => state.authtoken,
+  state: () => ({
+    authuser: null,
+    authtoken: null,
+  }),
+  actions: {
+    async getToken() {
+      try {
+        await axios.get('/sanctum/csrf-cookie')
+      } catch (error) {
+        console.error('Error getting CSRF token:', error)
+      }
     },
-    actions:{
-        async getToken(){
-            await axios.get('/sanctum/csrf-cookie');
-        },
-        async login(form){
-            await this.getToken();
-            await axios.post('/api/auth/login',form).then(
-                (res) => {
-                    this.authuser = res.data.data;
-                    this.authtoken = res.data.token;
-                    this.router.push('/doctores');
-                }
-            ).catch(
-                (errors) => {
-                    let desc = '';
-                    errors.response.data.errors.map(
-                        (e) => {desc = desc + ' ' +e}
-                    )
-                    show_alerta(desc,'error','');
-                }
-            )
-        },
-        async register(form){
-            await this.getToken();
-            await axios.post('/api/auth/register',form).then(
-                (res) => {
-                    show_alerta(res.data.message,'success','');
-                    setTimeout(() => {
-                        this.router.push('/login');
-                    }, 2000);
-                }
-            ).catch(
-                (errors) => {
-                    let desc = '';
-                    errors.response.data.errors.map(
-                        (e) => {desc = desc + ' ' +e}
-                    )
-                    show_alerta(desc,'error','');
-                }
-            )
-        },
-        async logout(){
-            await axios.get('/api/auth/logout',this.authtoken);
-                this.authtoken = null;
-                this.authuser = null;
-                this.router.push('/login');
+    async login(form, router) {
+      await this.getToken()
+      try {
+        const res = await axios.post('/api/auth/login', form)
+        this.authuser = res.data.user
+        this.authtoken = res.data.token
+        axios.defaults.headers.common['Authorization'] = `Bearer ${this.authtoken}`
+        router.push('/doctores')
+      } catch (error) {
+        let desc = ''
+        if (error.response && error.response.data.errors) {
+          error.response.data.errors.forEach(e => {
+            desc += ` ${e}`
+          })
+        } else {
+          desc = error.message
         }
-
+        show_alerta(desc, 'error', '')
+      }
     },
-    persist:true,
-});
+    async register(form, router) {
+      await this.getToken()
+      try {
+        const res = await axios.post('/api/auth/register', form)
+        show_alerta(res.data.message, 'success', '')
+        setTimeout(() => {
+          router.push('/login')
+        }, 2000)
+      } catch (error) {
+        let desc = ''
+        if (error.response && error.response.data.errors) {
+          error.response.data.errors.forEach(e => {
+            desc += ` ${e}`
+          })
+        } else {
+          desc = error.message
+        }
+        show_alerta(desc, 'error', '')
+      }
+    },
+    async logout(router) {
+      try {
+        await axios.get('/api/auth/logout', {
+          headers: {
+            Authorization: `Bearer ${this.authtoken}`
+          }
+        })
+        this.authtoken = null
+        this.authuser = null
+        delete axios.defaults.headers.common['Authorization']
+        router.push('/login')
+      } catch (error) {
+        console.error('Logout failed:', error)
+      }
+    }
+  },
+  persist: true,
+})
